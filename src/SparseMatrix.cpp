@@ -160,6 +160,7 @@ void SparseMatrix::printStoredValues() {
                 cout << "(" << cursor->getX() << ", " << cursor->getY() << ") --> " << cursor->getValue() << endl;
             }
         }
+        cursor = cursor->getRight();
     }
 }
 

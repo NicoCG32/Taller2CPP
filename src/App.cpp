@@ -17,7 +17,7 @@ int App::main() {
     cout << "Proyecto Matrices Poco Pobladas!" << endl;
 
     matriz.add(5, 2, 3);
-    matriz.add(8, 0, 1); // Algo falla, este se imprime después del 7 y 5
+    matriz.add(8, 0, 1); 
     matriz.add(10, 4, 0);
     matriz.add(3, 2, 0);
     matriz.add(7, 0, 3);
@@ -30,7 +30,7 @@ int App::main() {
     matriz.add(7, 3, 0);
     matriz.add(12, -1, 2); // Debería fallar
     matriz.add(0, 2, 2); // Debería fallar
-
+    //Arreglado
     matriz.printStoredValues();
 
     return 0;

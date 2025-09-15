@@ -5,17 +5,18 @@
       "type": "shell",
       "label": "build",
       "command": "g++",
-      "args": [
-        "-std=gnu++17",
-        "-O2",
-        "-Wall",
-        "-Wextra",
-        "-Iinclude",
-        "-o",
-        "build/taller.exe",
-        "src/App.cpp",
-        "src/SparseMatrix.cpp"
-      ],
+    "args": [
+      "-std=gnu++17",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Iinclude",
+      "-o",
+      "build/taller.exe",
+      "src/App.cpp",
+      "src/SparseMatrix.cpp",
+      "src/Node.cpp"
+    ],
       "group": {
         "kind": "build",
         "isDefault": true

@@ -165,7 +165,45 @@ void SparseMatrix::printStoredValues() {
 }
 
 int SparseMatrix::density() {
-    return 0;
+     // Extremos
+    int maxX = 0;
+    int maxY = 0;
+    Node* cursor = start->getRight();
+    while (cursor != start) {
+        if (cursor->getX() > maxX) {
+            maxX = cursor->getX();
+        }
+        cursor = cursor->getRight();
+    }
+    cursor = start->getDown();
+    while (cursor != start) {
+        if (cursor->getY() > maxY) {
+            maxY = cursor->getY();
+        }
+        cursor = cursor->getDown();
+    }
+    int total = (maxX + 1) * (maxY + 1); // +1 porque las posiciones empiezan en 0
+
+    // Contador
+    int cont = 0;
+    cursor = start;
+    while (cursor->getDown() != start){
+        cursor = cursor->getDown();
+        Node* limite = cursor;
+
+        while (cursor->getRight() != limite){
+            cursor = cursor->getRight();
+            cont++;
+        }
+
+        cursor = limite;
+    }
+
+    // Evitar división por cero
+    if (total == 0) {
+        return 0;
+    }
+    return (cont * 100 / total);
 }
 
 SparseMatrix* SparseMatrix::multiply(SparseMatrix* second) {

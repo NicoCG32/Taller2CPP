@@ -26,13 +26,14 @@ int App::main() {
     matriz.add(4, 3, 2);
     matriz.add(2, 3, 4);
     matriz.add(1, 1, 1);
-    matriz.add(11, 2, 3); // Debería fallar
+    matriz.add(11, 2, 3); // F
     matriz.add(7, 3, 0);
-    matriz.add(12, -1, 2); // Debería fallar
-    matriz.add(0, 2, 2); // Debería fallar
-    //Arreglado
-    matriz.printStoredValues();
+    matriz.add(12, -1, 2); // F
+    matriz.add(0, 2, 2); 
+    matriz.add(15, 0, 0);
 
+    matriz.printStoredValues();
+    cout << "Densidad: " << matriz.density() << "%" << endl;
     return 0;
 }
 

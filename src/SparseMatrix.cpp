@@ -18,13 +18,13 @@ void SparseMatrix::add(int value, int xPos, int yPos) {
 
     // Verificación, valor cero no es válido CREO (no tendría sentido almacenar ceros)
     if (value == 0) {
-        std::cout << "No se pueden agregar valores cero.\n";
+    cout << "No se pueden agregar valores cero.\n";
         return;
     }
 
     // Verificación, posiciones negativas no son válidas
     if (xPos < 0 || yPos < 0) {
-        std::cout << "Posiciones inválidas: (" << xPos << "," << yPos << ")\n";
+    cout << "Posiciones inválidas: (" << xPos << "," << yPos << ")\n";
         return;
     }
 
@@ -143,6 +143,26 @@ void SparseMatrix::add(int value, int xPos, int yPos) {
 
 
 int SparseMatrix::get(int xPos, int yPos) {
+    if (xPos < 0 || yPos < 0) {
+    cout << "Posiciones inválidas: (" << xPos << "," << yPos << ")\n";
+        return INT32_MAX;
+    }
+
+    Node* cursor = start;
+    
+    while (cursor->getDown() != start){
+        cursor = cursor->getDown();
+        Node* limite = cursor;
+        while (cursor->getRight() != limite){
+            cursor = cursor->getRight();
+            if (cursor->getX() == xPos && cursor->getY() == yPos) {
+                return cursor->getValue();
+            }
+        }
+        cursor = cursor->getRight();
+    }
+
+    cout << "No hay valor en la posicion: (" << xPos << "," << yPos << ")" << endl;
     return 0;
 }
 
@@ -156,9 +176,7 @@ void SparseMatrix::printStoredValues() {
         Node* limite = cursor;
         while (cursor->getRight() != limite){
             cursor = cursor->getRight();
-            if (cursor->getX() != -1 && cursor->getY() != -1) {
-                cout << "(" << cursor->getX() << ", " << cursor->getY() << ") --> " << cursor->getValue() << endl;
-            }
+            cout << "(" << cursor->getX() << ", " << cursor->getY() << ") --> " << cursor->getValue() << endl;
         }
         cursor = cursor->getRight();
     }

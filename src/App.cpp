@@ -21,19 +21,15 @@ int App::main() {
     matriz.add(10, 4, 0);
     matriz.add(3, 2, 0);
     matriz.add(7, 0, 3);
-    matriz.add(9, 4, 3);
-    matriz.add(6, 1, 4);
-    matriz.add(4, 3, 2);
-    matriz.add(2, 3, 4);
-    matriz.add(1, 1, 1);
-    matriz.add(11, 2, 3); // F
-    matriz.add(7, 3, 0);
-    matriz.add(12, -1, 2); // F
-    matriz.add(0, 2, 2); 
-    matriz.add(15, 0, 0);
 
-    matriz.printStoredValues();
-    cout << "Densidad: " << matriz.density() << "%" << endl;
+    cout << "Valor en (2,3): " << matriz.get(2, 3) << endl;
+    cout << "Valor en (0,1): " << matriz.get(0, 1) << endl;
+    cout << "Valor en (4,0): " << matriz.get(4, 0) << endl;
+    cout << "Valor en (2,0): " << matriz.get(2, 0) << endl;
+    cout << "Valor en (0,3): " << matriz.get(0, 3) << endl;
+    cout << "Valor en (1,1): " << matriz.get(1, 1) << endl; // No existe
+    cout << "Valor en (-1,2): " << matriz.get(-1, 2) << endl; // Posición inválida
+
     return 0;
 }
 

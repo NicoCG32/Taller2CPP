@@ -22,12 +22,16 @@ int App::main() {
     matriz.printStoredValues();
     cout << "Valor en (2,3): " << matriz.get(2, 3) << endl;
     cout << "Valor en (0,1): " << matriz.get(0, 1) << endl;
+    cout << "Densidad: " << matriz.density() << "%" << endl;
 
+    cout << endl;
+    
     matriz.remove(2, 3);
     matriz.printStoredValues();
     cout << "Valor en (2,3): " << matriz.get(2, 3) << endl;
     cout << "Valor en (0,1): " << matriz.get(0, 1) << endl;
- 
+    cout << "Densidad: " << matriz.density() << "%" << endl;
+
     return 0;
 }
 

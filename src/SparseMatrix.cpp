@@ -211,6 +211,7 @@ void SparseMatrix::remove(int xPos, int yPos) {
     }
 
     Node* temp;
+    
     temp = cursor->getUp();
     temp->setDown(cursor->getDown());
     cursor->getDown()->setUp(temp);
@@ -240,37 +241,40 @@ void SparseMatrix::printStoredValues() {
 
 int SparseMatrix::density() {
      // Extremos
-    int maxX = 0;
-    int maxY = 0;
-    Node* cursor = start->getRight();
-    while (cursor != start) {
-        if (cursor->getX() > maxX) {
-            maxX = cursor->getX();
+    Node* cursorX = start->getLeft();
+    Node* cursorY = start->getUp();
+
+    int maxX = cursorX->getX();
+    int maxY = cursorY->getY();
+
+    while (cursorX->getDown() == cursorX || cursorY->getRight() == cursorY) {
+        if (cursorX->getDown() == cursorX) {
+            cursorX = cursorX->getLeft();
+            maxX = cursorX->getX();
         }
-        cursor = cursor->getRight();
-    }
-    cursor = start->getDown();
-    while (cursor != start) {
-        if (cursor->getY() > maxY) {
-            maxY = cursor->getY();
+        if (cursorY->getRight() == cursorY) {
+            cursorY = cursorY->getUp();
+            maxY = cursorY->getY();
         }
-        cursor = cursor->getDown();
     }
+
+    cout << "Dimensiones de la matriz: " << (maxX + 1) << " x " << (maxY + 1) << endl;
     int total = (maxX + 1) * (maxY + 1); // +1 porque las posiciones empiezan en 0
 
     // Contador
     int cont = 0;
-    cursor = start;
-    while (cursor->getDown() != start){
-        cursor = cursor->getDown();
+    Node* cursor = start;
+    cursor = cursor->getDown();
+
+    while (cursor != start){
         Node* limite = cursor;
+        cursor = cursor->getRight();
 
-        while (cursor->getRight() != limite){
-            cursor = cursor->getRight();
+        while (cursor != limite){
             cont++;
+            cursor = cursor->getRight();
         }
-
-        cursor = limite;
+        cursor = cursor->getDown();
     }
 
     // Evitar división por cero

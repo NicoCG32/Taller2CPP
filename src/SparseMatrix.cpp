@@ -36,7 +36,7 @@ void SparseMatrix::add(int value, int xPos, int yPos) {
     Node* SentinelaX;
     while (x < xPos) {
         if (tempX->getRight() == start) {
-            SentinelaX = new Node(0, x, -1);
+            SentinelaX = new Node(0, x + 1, -1);
 
             tempX->setRight(SentinelaX);
             SentinelaX->setLeft(tempX);
@@ -59,7 +59,7 @@ void SparseMatrix::add(int value, int xPos, int yPos) {
     Node* SentinelaY;
     while (y < yPos) {
         if (tempY->getDown() == start) {
-            SentinelaY = new Node(0, -1, y);
+            SentinelaY = new Node(0, -1, y + 1);
 
             tempY->setDown(SentinelaY);
             SentinelaY->setUp(tempY);
@@ -141,44 +141,100 @@ void SparseMatrix::add(int value, int xPos, int yPos) {
     }
 }
 
-
 int SparseMatrix::get(int xPos, int yPos) {
     if (xPos < 0 || yPos < 0) {
-    cout << "Posiciones inválidas: (" << xPos << "," << yPos << ")\n";
+        cout << "Posicion invalida: (" << xPos << "," << yPos << ")\n";
         return INT32_MAX;
     }
 
     Node* cursor = start;
-    
-    while (cursor->getDown() != start){
+    cursor = cursor->getDown();
+    while (cursor != start) {
+        if (cursor->getY() == yPos) {
+            break;
+        }
         cursor = cursor->getDown();
-        Node* limite = cursor;
-        while (cursor->getRight() != limite){
-            cursor = cursor->getRight();
-            if (cursor->getX() == xPos && cursor->getY() == yPos) {
-                return cursor->getValue();
-            }
+    }
+
+    if (cursor == start) {
+        cout << "No hay valor en la posicion: (" << xPos << "," << yPos << ")\n";
+        return 0;
+    }
+    
+    Node* limite = cursor;
+    cursor = cursor->getRight();
+    while (cursor != limite) {
+        if (cursor->getX() == xPos) {
+            break;
         }
         cursor = cursor->getRight();
     }
+    
+    if (cursor == limite) {
+        cout << "No hay valor en la posicion: (" << xPos << "," << yPos << ")" << endl;
+        return 0;
+    }
 
-    cout << "No hay valor en la posicion: (" << xPos << "," << yPos << ")" << endl;
-    return 0;
+    return cursor->getValue();
 }
 
-void SparseMatrix::remove(int xPos, int yPos) {}
+void SparseMatrix::remove(int xPos, int yPos) {
+    if (xPos < 0 || yPos < 0) {
+        cout << "Posicion invalida: (" << xPos << "," << yPos << ")" << endl;
+        return;
+    }
+
+    Node* cursor = start;
+    cursor = cursor->getDown();
+    while (cursor != start) {
+        if (cursor->getY() == yPos) {
+            break;
+        }
+        cursor = cursor->getDown();
+    }
+    if (cursor == start) {
+        cout << "No hay valor en la posicion: (" << xPos << "," << yPos << ")\n";
+        return;
+    }
+    
+    Node* limite = cursor;
+    cursor = cursor->getRight();
+    while (cursor != limite) {
+        if (cursor->getX() == xPos) {
+            break;
+        }
+        cursor = cursor->getRight();
+    }
+    if (cursor == limite) {
+        cout << "No hay valor en la posicion: (" << xPos << "," << yPos << ")" << endl;
+        return;
+    }
+
+    Node* temp;
+    temp = cursor->getUp();
+    temp->setDown(cursor->getDown());
+    cursor->getDown()->setUp(temp);
+
+    temp = cursor->getLeft();
+    temp->setRight(cursor->getRight());
+    cursor->getRight()->setLeft(temp);
+
+    delete cursor;
+}
 
 void SparseMatrix::printStoredValues() {
     Node* cursor = start;
-    
-    while (cursor->getDown() != start){
-        cursor = cursor->getDown();
+    cursor = cursor->getDown();
+
+    while (cursor != start){
         Node* limite = cursor;
-        while (cursor->getRight() != limite){
-            cursor = cursor->getRight();
-            cout << "(" << cursor->getX() << ", " << cursor->getY() << ") --> " << cursor->getValue() << endl;
-        }
         cursor = cursor->getRight();
+
+        while (cursor != limite){
+            cout << "(" << cursor->getX() << ", " << cursor->getY() << ") --> " << cursor->getValue() << endl;
+            cursor = cursor->getRight();
+        }
+        cursor = cursor->getDown();
     }
 }
 

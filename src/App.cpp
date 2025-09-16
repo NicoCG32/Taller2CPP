@@ -18,18 +18,16 @@ int App::main() {
 
     matriz.add(5, 2, 3);
     matriz.add(8, 0, 1); 
-    matriz.add(10, 4, 0);
-    matriz.add(3, 2, 0);
-    matriz.add(7, 0, 3);
 
+    matriz.printStoredValues();
     cout << "Valor en (2,3): " << matriz.get(2, 3) << endl;
     cout << "Valor en (0,1): " << matriz.get(0, 1) << endl;
-    cout << "Valor en (4,0): " << matriz.get(4, 0) << endl;
-    cout << "Valor en (2,0): " << matriz.get(2, 0) << endl;
-    cout << "Valor en (0,3): " << matriz.get(0, 3) << endl;
-    cout << "Valor en (1,1): " << matriz.get(1, 1) << endl; // No existe
-    cout << "Valor en (-1,2): " << matriz.get(-1, 2) << endl; // Posición inválida
 
+    matriz.remove(2, 3);
+    matriz.printStoredValues();
+    cout << "Valor en (2,3): " << matriz.get(2, 3) << endl;
+    cout << "Valor en (0,1): " << matriz.get(0, 1) << endl;
+ 
     return 0;
 }
 

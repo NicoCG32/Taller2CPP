@@ -285,6 +285,34 @@ int SparseMatrix::density() {
 }
 
 SparseMatrix* SparseMatrix::multiply(SparseMatrix* second) {
-    return nullptr;
-}
+    // Verificación de dimensiones
+    // Columnas de la primera
+    Node* cursorX1 = start->getLeft();
+    int maxX1 = start->getLeft()->getX();
+    while (cursorX1->getDown() == cursorX1) {
+        if (cursorX1->getDown() == cursorX1) {
+            cursorX1 = cursorX1->getLeft();
+            maxX1 = cursorX1->getX();
+        }
+    }
 
+    // Filas de la segunda
+    Node* cursorY2 = second->start->getUp();
+    int maxY2 = second->start->getUp()->getY();
+    while (cursorY2->getRight() == cursorY2) {
+        if (cursorY2->getRight() == cursorY2) {
+            cursorY2 = cursorY2->getUp();
+            maxY2 = cursorY2->getY();
+        }
+    }
+
+    if (maxX1 != maxY2) {
+        cout << "Dimensiones incompatibles para multiplicacion: (" << maxX1 + 1 << " columnas, " << maxY2 + 1 << " filas)" << endl;
+        return nullptr;
+    }
+
+    // Multiplicación
+    SparseMatrix* result = new SparseMatrix();
+    
+    return result;
+}

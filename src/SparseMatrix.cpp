@@ -12,7 +12,25 @@ SparseMatrix::SparseMatrix() {
     start->setUp(start);
 }
 
-SparseMatrix::~SparseMatrix() {}
+SparseMatrix::~SparseMatrix() {
+    
+    Node* cursor = start->getDown();
+    while (cursor != start) {
+        Node* limite = cursor;
+        cursor = cursor->getRight();
+
+        while (cursor != limite) {
+            Node* temp = cursor;
+            cursor = cursor->getRight();
+            delete temp;
+        }
+        Node* temp = limite;
+        limite = limite->getDown();
+        delete temp;
+        cursor = limite;
+    }
+    delete start;
+}
 
 void SparseMatrix::add(int value, int xPos, int yPos) {
 
@@ -232,7 +250,7 @@ void SparseMatrix::printStoredValues() {
         cursor = cursor->getRight();
 
         while (cursor != limite){
-            cout << "(" << cursor->getX() << ", " << cursor->getY() << ") --> " << cursor->getValue() << endl;
+            cout << "(Columna: " << cursor->getX() << ", Fila: " << cursor->getY() << ") --> " << cursor->getValue() << endl;
             cursor = cursor->getRight();
         }
         cursor = cursor->getDown();
@@ -286,33 +304,77 @@ int SparseMatrix::density() {
 
 SparseMatrix* SparseMatrix::multiply(SparseMatrix* second) {
     // Verificación de dimensiones
-    // Columnas de la primera
-    Node* cursorX1 = start->getLeft();
-    int maxX1 = start->getLeft()->getX();
-    while (cursorX1->getDown() == cursorX1) {
-        if (cursorX1->getDown() == cursorX1) {
-            cursorX1 = cursorX1->getLeft();
-            maxX1 = cursorX1->getX();
-        }
-    }
 
+    // Columnas de la primera (Se aprovecha el que la linked list sea circular)
+    Node* cursor = start->getLeft();
+    int columnas = cursor->getX();
+    
     // Filas de la segunda
-    Node* cursorY2 = second->start->getUp();
-    int maxY2 = second->start->getUp()->getY();
-    while (cursorY2->getRight() == cursorY2) {
-        if (cursorY2->getRight() == cursorY2) {
-            cursorY2 = cursorY2->getUp();
-            maxY2 = cursorY2->getY();
-        }
-    }
+    cursor = second->start->getUp();
+    int filas = cursor->getY();
+    
 
-    if (maxX1 != maxY2) {
-        cout << "Dimensiones incompatibles para multiplicacion: (" << maxX1 + 1 << " columnas, " << maxY2 + 1 << " filas)" << endl;
+    if (columnas != filas) {
+        cout << "Dimensiones incompatibles para multiplicacion: (" << columnas + 1 << " columnas, " << filas + 1 << " filas)" << endl;
         return nullptr;
     }
+    // Si son compatibles las dimensiones de la resultante serán:
+
+    // Filas de la primera
+    cursor = start->getUp();
+    filas = cursor->getY();
+    
+    // Columnas de la segunda
+    cursor = second->start->getLeft();
+    columnas = cursor->getX();
 
     // Multiplicación
     SparseMatrix* result = new SparseMatrix();
     
+    // Recorremos cada posición de la matriz resultante
+
+    for (int fila = 0; fila <= filas; fila++) {
+        for (int columna = 0; columna <= columnas; columna++) {
+
+            //Buscamos la fila 
+            Node* cursorFirst = start->getDown();
+            while (cursorFirst != start) {
+                if (cursorFirst->getY() == fila) {
+                    break;
+                }
+                cursorFirst = cursorFirst->getDown();
+            }
+
+            //Buscamos la columna
+            Node* cursorSecond = second->start->getRight();
+            while (cursorSecond != second->start) {
+                if (cursorSecond->getX() == columna) {
+                    break;
+                }
+                cursorSecond = cursorSecond->getRight();
+            }
+
+            int sum = 0;
+
+            // Multiplicamos los elementos correspondientes
+            Node* tempFirst = cursorFirst->getRight();;
+            while (tempFirst != cursorFirst) {
+                Node* tempSecond = cursorSecond->getDown();
+                while (tempSecond != cursorSecond) {
+                    if (tempFirst->getX() == tempSecond->getY()) {
+                        sum += tempFirst->getValue() * tempSecond->getValue();
+                        break;
+                    }
+                    tempSecond = tempSecond->getDown();
+                }
+                tempFirst = tempFirst->getRight();
+            }
+
+            if (sum != 0) {
+                result->add(sum, columna, fila);
+            }
+        }
+    }
+
     return result;
 }

@@ -1,0 +1,44 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "shell",
+      "label": "build",
+      "command": "g++",
+    "args": [
+      "-std=gnu++17",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Iinclude",
+      "-o",
+      "build/taller.exe",
+      "src/App.cpp",
+      "src/SparseMatrix.cpp",
+      "src/Node.cpp"
+    ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "type": "shell",
+      "label": "run",
+      "command": "build/taller.exe",
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "dependsOn": [
+        "build"
+      ],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    }
+  ]
+}

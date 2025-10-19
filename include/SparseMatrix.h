@@ -6,8 +6,6 @@ class SparseMatrix {
 
 private:
     Node* start;
-    //int alto;
-    //int largo;
     
 public:
     SparseMatrix();

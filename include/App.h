@@ -5,9 +5,16 @@
 class App {
 
 private:
-    SparseMatrix matriz;
+    SparseMatrix* principal;
+    SparseMatrix* second;
+    
+    void mostrarMenuPrincipal();
+    void mostrarMenuMatriz(int numeroMatriz);
+    void procesarOpcionMatriz(int opcion, int numeroMatriz);
 
 public:
+    App();
+    ~App();
     int main();
     bool iniciarMatriz();
 };

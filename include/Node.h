@@ -32,3 +32,4 @@ public:
     void setUp(Node* up);
     
 };
+

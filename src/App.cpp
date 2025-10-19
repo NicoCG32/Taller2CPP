@@ -1,6 +1,24 @@
 #include "App.h"
 #include <iostream>
+#include <chrono>
 using namespace std;
+using namespace std::chrono;
+
+// Constructor
+App::App() {
+    principal = nullptr;
+    second = nullptr;
+}
+
+// Destructor
+App::~App() {
+    if (principal != nullptr) {
+        delete principal;
+    }
+    if (second != nullptr) {
+        delete second;
+    }
+}
 
 // Función MAIN
 int main() {
@@ -10,82 +28,227 @@ int main() {
 
 int App::main() {
     if (!iniciarMatriz()) {
-        cout << "Error al iniciar la matriz." << endl;
+        cout << "Error al iniciar las matrices." << endl;
         return -1;
     }
-    SparseMatrix* resultado = nullptr;
-    cout << "Proyecto Matrices Poco Pobladas!" << endl;
 
-    // Prueba de multiplicación
-    
-    matriz.add(5, 1, 0);
-    matriz.add(8, 0, 1); 
-    
-    cout << "Matriz N°1:" << endl;
-    matriz.printStoredValues();
-    
-    SparseMatrix segundaMatriz;
-    segundaMatriz.add(2, 0, 0);
-    segundaMatriz.add(3, 1, 0);
-    segundaMatriz.add(4, 0, 1);
+    cout << "=== PROYECTO MATRICES POCO POBLADAS ===" << endl << endl;
 
-    cout << "Matriz N°2:" << endl;
-    segundaMatriz.printStoredValues();
+    int opcion;
+    do {
+        mostrarMenuPrincipal();
+        cin >> opcion;
+        
+        if (cin.fail()) {
+            cin.clear();
+            cin.ignore(10000, '\n');
+            cout << "Entrada invalida. Intente de nuevo.\n";
+            continue;
+        }
 
-    resultado = matriz.multiply(&segundaMatriz);
-    cout << "Matriz Resultante de la Multiplicación:" << endl;
-    resultado->printStoredValues();
+        switch (opcion) {
+            case 1:
+                mostrarMenuMatriz(1);
+                break;
+            case 2:
+                mostrarMenuMatriz(2);
+                break;
+            case 3: {
+                cout << "\n--- MULTIPLICAR MATRIZ PRINCIPAL * MATRIZ SECOND ---" << endl;
+                auto inicio = high_resolution_clock::now();
+                SparseMatrix* resultado = principal->multiply(second);
+                auto fin = high_resolution_clock::now();
+                
+                if (resultado != nullptr) {
+                    cout << "\nMatriz Resultante:" << endl;
+                    resultado->printStoredValues();
+                    delete resultado;
+                } else {
+                    cout << "No se pudo realizar la multiplicacion.\n";
+                }
+                
+                auto tiempo = duration_cast<nanoseconds>(fin - inicio).count();
+                cout << "\nTiempo de ejecucion: " << tiempo << " nanosegundos" << endl;
+                break;
+            }
+            case 4: {
+                cout << "\n--- MULTIPLICAR MATRIZ SECOND * MATRIZ PRINCIPAL ---" << endl;
+                auto inicio = high_resolution_clock::now();
+                SparseMatrix* resultado = second->multiply(principal);
+                auto fin = high_resolution_clock::now();
+                
+                if (resultado != nullptr) {
+                    cout << "\nMatriz Resultante:" << endl;
+                    resultado->printStoredValues();
+                    delete resultado;
+                } else {
+                    cout << "No se pudo realizar la multiplicacion.\n";
+                }
+                
+                auto tiempo = duration_cast<nanoseconds>(fin - inicio).count();
+                cout << "\nTiempo de ejecucion: " << tiempo << " nanosegundos" << endl;
+                break;
+            }
+            case 0:
+                cout << "\nSaliendo del programa..." << endl;
+                break;
+            default:
+                cout << "\nOpcion invalida. Intente de nuevo." << endl;
+        }
 
-    // Más pruebas
-
-    matriz.add(10, 2, 2);
-    segundaMatriz.add(5, 2, 0);
-    segundaMatriz.add(7, 1, 2);
-    
-    cout << "Matriz N°1 Actualizada:" << endl;
-    matriz.printStoredValues();
-    cout << "Matriz N°2 Actualizada:" << endl;
-    segundaMatriz.printStoredValues();
-
-    resultado = matriz.multiply(&segundaMatriz);
-    cout << "Matriz Resultante de la Multiplicación Actualizada:" << endl;
-    resultado->printStoredValues();
-
-    delete resultado;
-
-    // Pruebas con matrices no cuadradas
-
-    SparseMatrix terceraMatriz;
-    terceraMatriz.add(1, 0, 0);
-    terceraMatriz.add(2, 0, 2);
-    terceraMatriz.add(3, 0, 1);
-
-    cout << "Matriz N°1 No Cuadrada:" << endl;
-    terceraMatriz.printStoredValues();
-
-    SparseMatrix cuartaMatriz;
-    cuartaMatriz.add(4, 0, 0);
-    cuartaMatriz.add(5, 1, 0);
-    cuartaMatriz.add(6, 2, 0);
-
-    cout << "Matriz N°2 No Cuadrada:" << endl;
-    cuartaMatriz.printStoredValues();
-
-    resultado = terceraMatriz.multiply(&cuartaMatriz);  // 3x1 * 1x3 = 3x3
-    cout << "Matriz Resultante de la Multiplicación No Cuadrada:" << endl;
-    resultado->printStoredValues();
-    delete resultado;
-
-
-    resultado = cuartaMatriz.multiply(&terceraMatriz);  // 1x3 * 3x1 = 1x1
-    cout << "Matriz Resultante de la Multiplicación No Cuadrada Inversa:" << endl;
-    resultado->printStoredValues(); 
-    delete resultado;
+    } while (opcion != 0);
 
     return 0;
 }
 
 bool App::iniciarMatriz() {
-    matriz = SparseMatrix();
+    principal = new SparseMatrix();
+    second = new SparseMatrix();
     return true;
+}
+
+void App::mostrarMenuPrincipal() {
+    cout << "\n========================================" << endl;
+    cout << "        MENU PRINCIPAL" << endl;
+    cout << "========================================" << endl;
+    cout << "1. Trabajar con Matriz 1" << endl;
+    cout << "2. Trabajar con Matriz 2" << endl;
+    cout << "3. Multiplicar Matriz 1 * Matriz 2" << endl;
+    cout << "4. Multiplicar Matriz 2 * Matriz 1" << endl;
+    cout << "0. Salir" << endl;
+    cout << "========================================" << endl;
+    cout << "Ingrese su opcion: ";
+}
+
+void App::mostrarMenuMatriz(int numeroMatriz) {
+    int opcion;
+    do {
+        cout << "\n========================================" << endl;
+        cout << "        MENU MATRIZ " << numeroMatriz << endl;
+        cout << "========================================" << endl;
+        cout << "1. Agregar elemento" << endl;
+        cout << "2. Obtener elemento" << endl;
+        cout << "3. Eliminar elemento" << endl;
+        cout << "4. Mostrar matriz" << endl;
+        cout << "5. Calcular densidad" << endl;
+        cout << "6. Limpiar matriz" << endl;
+        cout << "0. Volver al menu principal" << endl;
+        cout << "========================================" << endl;
+        cout << "Ingrese su opcion: ";
+        cin >> opcion;
+        
+        if (cin.fail()) {
+            cin.clear();
+            cin.ignore(10000, '\n');
+            cout << "Entrada invalida. Intente de nuevo.\n";
+            continue;
+        }
+
+        procesarOpcionMatriz(opcion, numeroMatriz);
+
+    } while (opcion != 0);
+}
+
+void App::procesarOpcionMatriz(int opcion, int numeroMatriz) {
+    SparseMatrix* matrizActual = (numeroMatriz == 1) ? principal : second;
+    
+    long long tiempo;
+    int valor, x, y;
+
+    switch (opcion) {
+        case 1: {
+            cout << "\n--- AGREGAR ELEMENTO ---" << endl;
+            cout << "Ingrese el valor: ";
+            cin >> valor;
+            cout << "Ingrese la columna (X): ";
+            cin >> x;
+            cout << "Ingrese la fila (Y): ";
+            cin >> y;
+            
+            auto inicio = high_resolution_clock::now();
+            matrizActual->add(valor, x, y);
+            auto fin = high_resolution_clock::now();
+            
+            tiempo = duration_cast<nanoseconds>(fin - inicio).count();
+            cout << "\nTiempo de ejecucion: " << tiempo << " nanosegundos" << endl;
+            break;
+        }
+        case 2: {
+            cout << "\n--- OBTENER ELEMENTO ---" << endl;
+            cout << "Ingrese la columna (X): ";
+            cin >> x;
+            cout << "Ingrese la fila (Y): ";
+            cin >> y;
+            
+            auto inicio = high_resolution_clock::now();
+            valor = matrizActual->get(x, y);
+            auto fin = high_resolution_clock::now();
+            
+            if (valor != INT32_MAX && valor != 0) {
+                cout << "Valor en (" << x << "," << y << "): " << valor << endl;
+            }
+            
+            tiempo = duration_cast<nanoseconds>(fin - inicio).count();
+            cout << "\nTiempo de ejecucion: " << tiempo << " nanosegundos" << endl;
+            break;
+        }
+        case 3: {
+            cout << "\n--- ELIMINAR ELEMENTO ---" << endl;
+            cout << "Ingrese la columna (X): ";
+            cin >> x;
+            cout << "Ingrese la fila (Y): ";
+            cin >> y;
+            
+            auto inicio = high_resolution_clock::now();
+            matrizActual->remove(x, y);
+            auto fin = high_resolution_clock::now();
+            
+            tiempo = duration_cast<nanoseconds>(fin - inicio).count();
+            cout << "\nTiempo de ejecucion: " << tiempo << " nanosegundos" << endl;
+            break;
+        }
+        case 4: {
+            cout << "\n--- MATRIZ " << numeroMatriz << " ---" << endl;
+            
+            auto inicio = high_resolution_clock::now();
+            matrizActual->printStoredValues();
+            auto fin = high_resolution_clock::now();
+            
+            tiempo = duration_cast<nanoseconds>(fin - inicio).count();
+            cout << "\nTiempo de ejecucion: " << tiempo << " nanosegundos" << endl;
+            break;
+        }
+        case 5: {
+            cout << "\n--- DENSIDAD DE LA MATRIZ " << numeroMatriz << " ---" << endl;
+            
+            auto inicio = high_resolution_clock::now();
+            int densidad = matrizActual->density();
+            auto fin = high_resolution_clock::now();
+            
+            cout << "Densidad: " << densidad << "%" << endl;
+            
+            tiempo = duration_cast<nanoseconds>(fin - inicio).count();
+            cout << "\nTiempo de ejecucion: " << tiempo << " nanosegundos" << endl;
+            break;
+        }
+        case 6: {
+            cout << "\n--- LIMPIAR MATRIZ " << numeroMatriz << " ---" << endl;
+            
+            if (numeroMatriz == 1) {
+                delete principal;
+                principal = new SparseMatrix();
+            } else {
+                delete second;
+                second = new SparseMatrix();
+            }
+            
+            cout << "Matriz " << numeroMatriz << " limpiada exitosamente." << endl;
+            break;
+        }
+        case 0:
+            cout << "\nVolviendo al menu principal..." << endl;
+            break;
+        default:
+            cout << "\nOpcion invalida. Intente de nuevo." << endl;
+    }
 }

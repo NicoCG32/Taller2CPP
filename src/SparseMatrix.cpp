@@ -34,13 +34,13 @@ SparseMatrix::~SparseMatrix() {
 
 void SparseMatrix::add(int value, int xPos, int yPos) {
 
-    // Verificación, valor cero no es válido CREO (no tendría sentido almacenar ceros)
+    // Verificación: valor cero no es válido (no tiene sentido almacenar ceros)
     if (value == 0) {
     cout << "No se pueden agregar valores cero.\n";
         return;
     }
 
-    // Verificación, posiciones negativas no son válidas
+    // Verificación: posiciones negativas no son válidas
     if (xPos < 0 || yPos < 0) {
     cout << "Posiciones inválidas: (" << xPos << "," << yPos << ")\n";
         return;
@@ -49,58 +49,58 @@ void SparseMatrix::add(int value, int xPos, int yPos) {
     int x = -1;
     int y = -1;
 
-    // Verificación, no existe ya un valor en la posición
+    // Verificación: no existe ya un valor en la posición
     Node* tempX = start;
-    Node* SentinelaX;
+    Node* centinelaX;
     while (x < xPos) {
         if (tempX->getRight() == start) {
-            SentinelaX = new Node(0, x + 1, -1);
+            centinelaX = new Node(0, x + 1, -1);
 
-            tempX->setRight(SentinelaX);
-            SentinelaX->setLeft(tempX);
+            tempX->setRight(centinelaX);
+            centinelaX->setLeft(tempX);
 
-            SentinelaX->setRight(start);
-            start->setLeft(SentinelaX);
+            centinelaX->setRight(start);
+            start->setLeft(centinelaX);
 
-            SentinelaX->setUp(SentinelaX);
-            SentinelaX->setDown(SentinelaX);
+            centinelaX->setUp(centinelaX);
+            centinelaX->setDown(centinelaX);
 
-            tempX = SentinelaX;
+            tempX = centinelaX;
         } else {
             tempX = tempX->getRight();
         }
         x++;
     }
-    SentinelaX = tempX;
+    centinelaX = tempX;
 
     Node* tempY = start;
-    Node* SentinelaY;
+    Node* centinelaY;
     while (y < yPos) {
         if (tempY->getDown() == start) {
-            SentinelaY = new Node(0, -1, y + 1);
+            centinelaY = new Node(0, -1, y + 1);
 
-            tempY->setDown(SentinelaY);
-            SentinelaY->setUp(tempY);
+            tempY->setDown(centinelaY);
+            centinelaY->setUp(tempY);
 
-            SentinelaY->setDown(start);
-            start->setUp(SentinelaY);
+            centinelaY->setDown(start);
+            start->setUp(centinelaY);
 
-            SentinelaY->setRight(SentinelaY);
-            SentinelaY->setLeft(SentinelaY);
+            centinelaY->setRight(centinelaY);
+            centinelaY->setLeft(centinelaY);
 
-            tempY = SentinelaY;
+            tempY = centinelaY;
         } else {
             tempY = tempY->getDown();
         }
         y++;
     }
-    SentinelaY = tempY;
+    centinelaY = tempY;
 
-    tempX = SentinelaX->getDown();
+    tempX = centinelaX->getDown();
     while (tempX->getY() != -1 && tempX->getY() < yPos) {
         tempX = tempX->getDown();
     }
-    tempY = SentinelaY->getRight();
+    tempY = centinelaY->getRight();
     while (tempY->getX() != -1 && tempY->getX() < xPos) {
         tempY = tempY->getRight();
     }
@@ -114,14 +114,14 @@ void SparseMatrix::add(int value, int xPos, int yPos) {
     Node* newNode = new Node(value, xPos, yPos);
     Node* temp;
 
-    if (SentinelaX->getDown() == SentinelaX) {
-        SentinelaX->setDown(newNode);
-        newNode->setUp(SentinelaX);
-        SentinelaX->setUp(newNode);
-        newNode->setDown(SentinelaX);
+    if (centinelaX->getDown() == centinelaX) {
+        centinelaX->setDown(newNode);
+        newNode->setUp(centinelaX);
+        centinelaX->setUp(newNode);
+        newNode->setDown(centinelaX);
 
     } else {
-        tempX = SentinelaX->getDown();
+        tempX = centinelaX->getDown();
         y = tempX->getY();
 
         while (y != -1 && y < yPos) {
@@ -136,14 +136,14 @@ void SparseMatrix::add(int value, int xPos, int yPos) {
         newNode->setDown(tempX);
     }
 
-    if (SentinelaY->getRight() == SentinelaY) {
-        SentinelaY->setRight(newNode);
-        newNode->setLeft(SentinelaY);
-        SentinelaY->setLeft(newNode);
-        newNode->setRight(SentinelaY);
+    if (centinelaY->getRight() == centinelaY) {
+        centinelaY->setRight(newNode);
+        newNode->setLeft(centinelaY);
+        centinelaY->setLeft(newNode);
+        newNode->setRight(centinelaY);
 
     } else {
-        tempY = SentinelaY->getRight();
+        tempY = centinelaY->getRight();
         x = tempY->getX();
 
         while (x != -1 && x < xPos) {
@@ -162,7 +162,7 @@ void SparseMatrix::add(int value, int xPos, int yPos) {
 int SparseMatrix::get(int xPos, int yPos) {
     if (xPos < 0 || yPos < 0) {
         cout << "Posicion invalida: (" << xPos << "," << yPos << ")\n";
-        return INT32_MAX;
+        return 0;
     }
 
     Node* cursor = start;
@@ -239,6 +239,32 @@ void SparseMatrix::remove(int xPos, int yPos) {
     cursor->getRight()->setLeft(temp);
 
     delete cursor;
+
+    //Eliminacion de centinelas si quedan vacíos
+    //Centinela columna
+    Node* centinelaX = start->getRight();
+    while (centinelaX != start) {
+        if (centinelaX->getDown() == centinelaX) {
+            temp = centinelaX->getLeft();
+            temp->setRight(centinelaX->getRight());
+            centinelaX->getRight()->setLeft(temp);
+            delete centinelaX;
+            break;
+        }
+        centinelaX = centinelaX->getRight();
+    }
+    //Centinela fila
+    Node* centinelaY = start->getDown();
+    while (centinelaY != start) {
+        if (centinelaY->getRight() == centinelaY) {
+            temp = centinelaY->getUp();
+            temp->setDown(centinelaY->getDown());
+            centinelaY->getDown()->setUp(temp);
+            delete centinelaY;
+            break;
+        }
+        centinelaY = centinelaY->getDown();
+    }
 }
 
 void SparseMatrix::printStoredValues() {
@@ -250,7 +276,7 @@ void SparseMatrix::printStoredValues() {
         cursor = cursor->getRight();
 
         while (cursor != limite){
-            cout << "(Columna: " << cursor->getX() << ", Fila: " << cursor->getY() << ") --> " << cursor->getValue() << endl;
+            cout << "(" << cursor->getX() << "," << cursor->getY() << ") --> " << cursor->getValue() << endl;
             cursor = cursor->getRight();
         }
         cursor = cursor->getDown();
@@ -258,23 +284,12 @@ void SparseMatrix::printStoredValues() {
 }
 
 int SparseMatrix::density() {
-     // Extremos
+    // Extremos
     Node* cursorX = start->getLeft();
     Node* cursorY = start->getUp();
 
     int maxX = cursorX->getX();
     int maxY = cursorY->getY();
-
-    while (cursorX->getDown() == cursorX || cursorY->getRight() == cursorY) {
-        if (cursorX->getDown() == cursorX) {
-            cursorX = cursorX->getLeft();
-            maxX = cursorX->getX();
-        }
-        if (cursorY->getRight() == cursorY) {
-            cursorY = cursorY->getUp();
-            maxY = cursorY->getY();
-        }
-    }
 
     cout << "Dimensiones de la matriz: " << (maxX + 1) << " x " << (maxY + 1) << endl;
     int total = (maxX + 1) * (maxY + 1); // +1 porque las posiciones empiezan en 0
@@ -305,29 +320,28 @@ int SparseMatrix::density() {
 SparseMatrix* SparseMatrix::multiply(SparseMatrix* second) {
     // Verificación de dimensiones
 
-    // Columnas de la primera (Se aprovecha el que la linked list sea circular)
+    // Columnas de la primera
     Node* cursor = start->getLeft();
     int columnas = cursor->getX();
-    
+
     // Filas de la segunda
     cursor = second->start->getUp();
     int filas = cursor->getY();
-    
 
     if (columnas != filas) {
         cout << "Dimensiones incompatibles para multiplicacion: (" << columnas + 1 << " columnas, " << filas + 1 << " filas)" << endl;
         return nullptr;
     }
-    // Si son compatibles las dimensiones de la resultante serán:
+    // Si son compatibles, las dimensiones de la resultante serán:
 
     // Filas de la primera
     cursor = start->getUp();
     filas = cursor->getY();
-    
+
     // Columnas de la segunda
     cursor = second->start->getLeft();
     columnas = cursor->getX();
-
+    
     // Multiplicación
     SparseMatrix* result = new SparseMatrix();
     
@@ -336,7 +350,7 @@ SparseMatrix* SparseMatrix::multiply(SparseMatrix* second) {
     for (int fila = 0; fila <= filas; fila++) {
         for (int columna = 0; columna <= columnas; columna++) {
 
-            //Buscamos la fila 
+            // Buscamos la fila 
             Node* cursorFirst = start->getDown();
             while (cursorFirst != start) {
                 if (cursorFirst->getY() == fila) {
@@ -345,7 +359,7 @@ SparseMatrix* SparseMatrix::multiply(SparseMatrix* second) {
                 cursorFirst = cursorFirst->getDown();
             }
 
-            //Buscamos la columna
+            // Buscamos la columna
             Node* cursorSecond = second->start->getRight();
             while (cursorSecond != second->start) {
                 if (cursorSecond->getX() == columna) {

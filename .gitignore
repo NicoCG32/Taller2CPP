@@ -1,0 +1,13 @@
+# IDE
+.vscode/
+
+# Objetos / binarios
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+*.a
+*.lib
+*.pdb
+

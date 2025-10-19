@@ -284,14 +284,20 @@ void SparseMatrix::printStoredValues() {
 }
 
 int SparseMatrix::density() {
-    // Extremos
+    // Extremos (Se aprovecha el enlace circular)
     Node* cursorX = start->getLeft();
     Node* cursorY = start->getUp();
 
     int maxX = cursorX->getX();
     int maxY = cursorY->getY();
 
-    cout << "Dimensiones de la matriz: " << (maxX + 1) << " x " << (maxY + 1) << endl;
+    if (maxX == -1 || maxY == -1) {
+        cout << "La matriz esta vacia." << endl;
+        return 0;
+    } else {
+        cout << "Dimensiones de la matriz: " << (maxX + 1) << " x " << (maxY + 1) << endl;
+    }
+    
     int total = (maxX + 1) * (maxY + 1); // +1 porque las posiciones empiezan en 0
 
     // Contador
@@ -318,8 +324,8 @@ int SparseMatrix::density() {
 }
 
 SparseMatrix* SparseMatrix::multiply(SparseMatrix* second) {
-    // Verificación de dimensiones
 
+    // Verificación de dimensiones
     // Columnas de la primera
     Node* cursor = start->getLeft();
     int columnas = cursor->getX();

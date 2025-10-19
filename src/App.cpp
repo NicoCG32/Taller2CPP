@@ -1,5 +1,6 @@
 #include "App.h"
 #include <iostream>
+
 #include <chrono>
 using namespace std;
 using namespace std::chrono;
@@ -69,6 +70,30 @@ int App::main() {
                 
                 auto tiempo = duration_cast<nanoseconds>(fin - inicio).count();
                 cout << "\nTiempo de ejecucion: " << tiempo << " nanosegundos" << endl;
+
+                cout << "¿Desea guardar el resultado? (1: Sí, 0: No): ";
+                int opcionGuardar;
+                cin >> opcionGuardar;
+
+                if (opcionGuardar == 1) {
+                   cout << "¿Sobreescribir Matriz Principal (1) o Matriz Second (2)? ";
+                   int matrizDestino;
+                   cin >> matrizDestino;
+                   if (matrizDestino == 1) {
+                       delete principal;
+                       principal = resultado;
+                       cout << "Matriz Principal actualizada con el resultado." << endl;
+                   } else if (matrizDestino == 2) {
+                       delete second;
+                       second = resultado;
+                       cout << "Matriz Second actualizada con el resultado." << endl;
+                   } else {
+                       cout << "Opción inválida. Resultado no guardado." << endl;
+                       delete resultado;
+                   }
+                } else {
+                    delete resultado;
+                }
                 break;
             }
             case 4: {
@@ -87,6 +112,31 @@ int App::main() {
                 
                 auto tiempo = duration_cast<nanoseconds>(fin - inicio).count();
                 cout << "\nTiempo de ejecucion: " << tiempo << " nanosegundos" << endl;
+
+                cout << "¿Desea guardar el resultado? (1: Sí, 0: No): ";
+                int opcionGuardar;
+                cin >> opcionGuardar;
+
+                if (opcionGuardar == 1) {
+                   cout << "¿Sobreescribir Matriz Principal (1) o Matriz Second (2)? ";
+                   int matrizDestino;
+                   cin >> matrizDestino;
+                   if (matrizDestino == 1) {
+                       delete principal;
+                       principal = resultado;
+                       cout << "Matriz Principal actualizada con el resultado." << endl;
+                   } else if (matrizDestino == 2) {
+                       delete second;
+                       second = resultado;
+                       cout << "Matriz Second actualizada con el resultado." << endl;
+                   } else {
+                       cout << "Opción inválida. Resultado no guardado." << endl;
+                       delete resultado;
+                   }
+                } else {
+                    delete resultado;
+                }
+                
                 break;
             }
             case 0:

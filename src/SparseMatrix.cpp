@@ -229,7 +229,6 @@ void SparseMatrix::remove(int xPos, int yPos) {
     }
 
     Node* temp;
-    
     temp = cursor->getUp();
     temp->setDown(cursor->getDown());
     cursor->getDown()->setUp(temp);
@@ -237,33 +236,29 @@ void SparseMatrix::remove(int xPos, int yPos) {
     temp = cursor->getLeft();
     temp->setRight(cursor->getRight());
     cursor->getRight()->setLeft(temp);
-
     delete cursor;
 
     //Eliminacion de centinelas si quedan vacíos
-    //Centinela columna
-    Node* centinelaX = start->getRight();
-    while (centinelaX != start) {
-        if (centinelaX->getDown() == centinelaX) {
-            temp = centinelaX->getLeft();
-            temp->setRight(centinelaX->getRight());
-            centinelaX->getRight()->setLeft(temp);
-            delete centinelaX;
-            break;
-        }
-        centinelaX = centinelaX->getRight();
+    Node* centinelaBorde;
+
+    //Centinelas columna
+    centinelaBorde = start->getLeft();
+    while (centinelaBorde->getDown() == centinelaBorde) {
+        temp = centinelaBorde->getLeft();
+        temp->setRight(start);
+        start->setLeft(temp);
+        delete centinelaBorde;
+        centinelaBorde = temp;
     }
+
     //Centinela fila
-    Node* centinelaY = start->getDown();
-    while (centinelaY != start) {
-        if (centinelaY->getRight() == centinelaY) {
-            temp = centinelaY->getUp();
-            temp->setDown(centinelaY->getDown());
-            centinelaY->getDown()->setUp(temp);
-            delete centinelaY;
-            break;
-        }
-        centinelaY = centinelaY->getDown();
+    centinelaBorde = start->getUp();
+    while (centinelaBorde->getRight() == centinelaBorde) {
+        temp = centinelaBorde->getUp();
+        temp->setDown(start);
+        start->setUp(temp);
+        delete centinelaBorde;
+        centinelaBorde = temp;
     }
 }
 
@@ -335,7 +330,8 @@ SparseMatrix* SparseMatrix::multiply(SparseMatrix* second) {
     int filas = cursor->getY();
 
     if (columnas != filas) {
-        cout << "Dimensiones incompatibles para multiplicacion: (" << columnas + 1 << " columnas, " << filas + 1 << " filas)" << endl;
+        cout << "Dimensiones incompatibles para multiplicacion: (" 
+        << columnas + 1 << " columnas, " << filas + 1 << " filas)" << endl;
         return nullptr;
     }
     // Si son compatibles, las dimensiones de la resultante serán:
@@ -352,7 +348,6 @@ SparseMatrix* SparseMatrix::multiply(SparseMatrix* second) {
     SparseMatrix* result = new SparseMatrix();
     
     // Recorremos cada posición de la matriz resultante
-
     for (int fila = 0; fila <= filas; fila++) {
         for (int columna = 0; columna <= columnas; columna++) {
 
@@ -364,7 +359,6 @@ SparseMatrix* SparseMatrix::multiply(SparseMatrix* second) {
                 }
                 cursorFirst = cursorFirst->getDown();
             }
-
             // Buscamos la columna
             Node* cursorSecond = second->start->getRight();
             while (cursorSecond != second->start) {
@@ -375,19 +369,20 @@ SparseMatrix* SparseMatrix::multiply(SparseMatrix* second) {
             }
 
             int sum = 0;
-
             // Multiplicamos los elementos correspondientes
-            Node* tempFirst = cursorFirst->getRight();;
-            while (tempFirst != cursorFirst) {
-                Node* tempSecond = cursorSecond->getDown();
-                while (tempSecond != cursorSecond) {
-                    if (tempFirst->getX() == tempSecond->getY()) {
-                        sum += tempFirst->getValue() * tempSecond->getValue();
-                        break;
-                    }
+            Node* tempFirst = cursorFirst->getRight();
+            Node* tempSecond = cursorSecond->getDown();
+
+            while (tempFirst != cursorFirst && tempSecond != cursorSecond) {
+                if (tempFirst->getX() == tempSecond->getY()) {
+                    sum += tempFirst->getValue() * tempSecond->getValue();
+                    tempFirst = tempFirst->getRight();
+                    tempSecond = tempSecond->getDown();
+                } else if (tempFirst->getX() < tempSecond->getY()) {
+                    tempFirst = tempFirst->getRight();
+                } else {
                     tempSecond = tempSecond->getDown();
                 }
-                tempFirst = tempFirst->getRight();
             }
 
             if (sum != 0) {

@@ -11,6 +11,7 @@ private:
     void mostrarMenuPrincipal();
     void mostrarMenuMatriz(int numeroMatriz);
     void procesarOpcionMatriz(int opcion, int numeroMatriz);
+    void guardarResultadoMultiplicacion(SparseMatrix* resultado);
 
 public:
     App();

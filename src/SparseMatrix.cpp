@@ -238,12 +238,13 @@ void SparseMatrix::remove(int xPos, int yPos) {
     cursor->getRight()->setLeft(temp);
     delete cursor;
 
-    //Eliminacion de centinelas si quedan vacíos
+    //Eliminacion de centinelas borde si quedan vacíos
     Node* centinelaBorde;
 
     //Centinelas columna
     centinelaBorde = start->getLeft();
-    while (centinelaBorde->getDown() == centinelaBorde && centinelaBorde != start) {
+    while (centinelaBorde->getDown() == centinelaBorde 
+           && centinelaBorde != start) {
         temp = centinelaBorde->getLeft();
         temp->setRight(start);
         start->setLeft(temp);
@@ -251,7 +252,7 @@ void SparseMatrix::remove(int xPos, int yPos) {
         centinelaBorde = temp;
     }
 
-    //Centinela fila
+    //Centinelas fila
     centinelaBorde = start->getUp();
     while (centinelaBorde->getRight() == centinelaBorde && centinelaBorde != start ) {
         temp = centinelaBorde->getUp();
@@ -322,54 +323,79 @@ SparseMatrix* SparseMatrix::multiply(SparseMatrix* second) {
 
     // Verificación de dimensiones
     // Columnas de la primera
-    Node* cursor = start->getLeft();
-    int columnas = cursor->getX();
+    Node* cursorFirst = start->getLeft();
+    int columnas = cursorFirst->getX();
 
     // Filas de la segunda
-    cursor = second->start->getUp();
-    int filas = cursor->getY();
+    Node* cursorSecond = second->start->getUp();
+    int filas = cursorSecond->getY();
 
+    // Expansión de dimensiones si es necesario
     if (columnas != filas) {
-        cout << "Dimensiones incompatibles para multiplicacion: (" 
-        << columnas + 1 << " columnas, " << filas + 1 << " filas)" << endl;
-        return nullptr;
-    }
-    // Si son compatibles, las dimensiones de la resultante serán:
+        cout << "Ajustando dimensiones para multiplicacion: " 
+             << (columnas + 1) << " columnas x " << (filas + 1) << " filas" << endl;
+        
+        // Expandir columnas de la primera matriz
+        Node* nuevoCentinela;
+        while (columnas < filas) {
+            nuevoCentinela = new Node(0, columnas + 1, -1);
+            
+            // Enlazar horizontalmente
+            cursorFirst->setRight(nuevoCentinela);
+            nuevoCentinela->setLeft(cursorFirst);
+            nuevoCentinela->setRight(start);
+            start->setLeft(nuevoCentinela);
 
+            // Enlazar verticalmente (circular a sí mismo)
+            nuevoCentinela->setUp(nuevoCentinela);
+            nuevoCentinela->setDown(nuevoCentinela);
+
+            cursorFirst = nuevoCentinela;
+            columnas++;
+        }
+        
+        // Expandir filas de la segunda matriz
+        while (filas < columnas) {
+            nuevoCentinela = new Node(0, -1, filas + 1);
+            
+            // Enlazar verticalmente
+            cursorSecond->setDown(nuevoCentinela);
+            nuevoCentinela->setUp(cursorSecond);
+            nuevoCentinela->setDown(second->start);
+            second->start->setUp(nuevoCentinela);
+
+            // Enlazar horizontalmente
+            nuevoCentinela->setLeft(nuevoCentinela);
+            nuevoCentinela->setRight(nuevoCentinela);
+
+            cursorSecond = nuevoCentinela;
+            filas++;
+        }
+        
+    } 
+
+    // Ahora son compatibles, las dimensiones de la resultante serán:
     // Filas de la primera
-    cursor = start->getUp();
-    filas = cursor->getY();
+    cursorFirst = start->getUp();
+    filas = cursorFirst->getY();
 
     // Columnas de la segunda
-    cursor = second->start->getLeft();
-    columnas = cursor->getX();
+    cursorSecond = second->start->getLeft();
+    columnas = cursorSecond->getX();
     
     // Multiplicación
     SparseMatrix* result = new SparseMatrix();
     
     // Recorremos cada posición de la matriz resultante
+    // Primer centinela de fila (y = 0)
+    cursorFirst = start->getDown();
     for (int fila = 0; fila <= filas; fila++) {
+        // primer centinela de columna (x = 0)
+        cursorSecond = second->start->getRight(); 
         for (int columna = 0; columna <= columnas; columna++) {
 
-            // Buscamos la fila 
-            Node* cursorFirst = start->getDown();
-            while (cursorFirst != start) {
-                if (cursorFirst->getY() == fila) {
-                    break;
-                }
-                cursorFirst = cursorFirst->getDown();
-            }
-            // Buscamos la columna
-            Node* cursorSecond = second->start->getRight();
-            while (cursorSecond != second->start) {
-                if (cursorSecond->getX() == columna) {
-                    break;
-                }
-                cursorSecond = cursorSecond->getRight();
-            }
-
-            int sum = 0;
             // Multiplicamos los elementos correspondientes
+            int sum = 0;
             Node* tempFirst = cursorFirst->getRight();
             Node* tempSecond = cursorSecond->getDown();
 
@@ -388,8 +414,63 @@ SparseMatrix* SparseMatrix::multiply(SparseMatrix* second) {
             if (sum != 0) {
                 result->add(sum, columna, fila);
             }
+            // Avanza de columna (aprovechando el enlace circular)
+            cursorSecond = cursorSecond->getRight();
         }
+        // Avanza de fila (aprovechando el enlace circular)
+        cursorFirst = cursorFirst->getDown();
     }
 
     return result;
 }
+
+/*
+void SparseMatrix::printMatrix() {
+    // Obtener dimensiones
+    Node* cursorX = start->getLeft();
+    Node* cursorY = start->getUp();
+
+    int maxX = cursorX->getX();
+    int maxY = cursorY->getY();
+
+    if (maxX == -1 || maxY == -1) {
+        cout << "La matriz esta vacia." << endl;
+        return;
+    }
+    cout << "[";
+    for (int y = 0; y <= maxY; y++) {
+        cout << "[";
+        for (int x = 0; x <= maxX; x++) {
+            int val = this->get(x, y);
+            cout << val << " ";
+        }
+        cout << "]" << endl;
+    }
+    cout << "]" << endl;
+}
+
+void SparseMatrix::compact() {
+    //Eliminacion de centinelas borde si quedan vacíos
+    Node* centinelaBorde;
+    Node* temp;
+    //Centinelas columna
+    centinelaBorde = start->getLeft();
+    while (centinelaBorde->getDown() == centinelaBorde 
+           && centinelaBorde != start) {
+        temp = centinelaBorde->getLeft();
+        temp->setRight(start);
+        start->setLeft(temp);
+        delete centinelaBorde;
+        centinelaBorde = temp;
+    }
+    //Centinelas fila
+    centinelaBorde = start->getUp();
+    while (centinelaBorde->getRight() == centinelaBorde && centinelaBorde != start ) {
+        temp = centinelaBorde->getUp();
+        temp->setDown(start);
+        start->setUp(temp);
+        delete centinelaBorde;
+        centinelaBorde = temp;
+    }
+}
+*/

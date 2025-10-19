@@ -17,4 +17,8 @@ public:
     void printStoredValues();
     int density();
     SparseMatrix* multiply(SparseMatrix* second);
+/*
+    void printMatrix();
+    void compact();
+*/
 };

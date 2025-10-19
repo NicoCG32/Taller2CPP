@@ -243,7 +243,7 @@ void SparseMatrix::remove(int xPos, int yPos) {
 
     //Centinelas columna
     centinelaBorde = start->getLeft();
-    while (centinelaBorde->getDown() == centinelaBorde) {
+    while (centinelaBorde->getDown() == centinelaBorde && centinelaBorde != start) {
         temp = centinelaBorde->getLeft();
         temp->setRight(start);
         start->setLeft(temp);
@@ -253,7 +253,7 @@ void SparseMatrix::remove(int xPos, int yPos) {
 
     //Centinela fila
     centinelaBorde = start->getUp();
-    while (centinelaBorde->getRight() == centinelaBorde) {
+    while (centinelaBorde->getRight() == centinelaBorde && centinelaBorde != start ) {
         temp = centinelaBorde->getUp();
         temp->setDown(start);
         start->setUp(temp);

@@ -403,37 +403,37 @@ int App::main() {
                         cin.ignore();
                         cin.get();
                     } else if (opcionPrueba == 4) {
-                        // Probar multiply: misma A (base) y B fijas, medir solo multiply()
+                        // Probar multiply: alterna entre principal*second y second*principal cada iteración
                         cout << "\nUsar como A (base): 1) Matriz Principal  2) Matriz Second\nOpcion: ";
                         int selA; cin >> selA;
                         SparseMatrix* A = (selA == 2 ? second : principal);
-                        if (!A) { cout << "Matriz A no disponible." << endl; continue; }
-
-                        // Crear B una vez fuera del cronometro
-                        int cantidadDatos = A->countNonZero();
-                        int densidadClase;
-                        {
-                            int d = A->density();
-                            densidadClase = (d >= 70 ? 75 : 30);
-                        }
-                        SparseMatrix* B = new SparseMatrix();
-                        generarMatrizAleatoria(B, cantidadDatos, densidadClase);
+                        SparseMatrix* B = (selA == 2 ? principal : second);
                         
-                        // Warmup: 2 repeticiones
+                        // Validar que ambas matrices existan
+                        if (!A) { 
+                            cout << "Matriz A no disponible." << endl; 
+                            continue; 
+                        }
+                        if (!B) { 
+                            cout << "Matriz B no disponible. Necesitas ambas matrices para la prueba." << endl; 
+                            continue; 
+                        }
+                        
+                        // Warmup: 2 repeticiones alternando
                         const int warmup = 2;
                         for (int w = 0; w < warmup; ++w) {
-                            SparseMatrix* resWarm = A->multiply(B);
+                            SparseMatrix* resWarm = (w % 2 == 0) ? A->multiply(B) : B->multiply(A);
                             delete resWarm;
                         }
                         
-                        // Medir 10 repeticiones
-                        const int repeticiones = 10;
+                        // Medir 100 repeticiones alternando A*B y B*A
+                        const int repeticiones = 100;
                         long long totalPsAccum = 0;
                         long long totalNsAccum = 0;
                         long long totalMsAccum = 0;
                         for (int r = 0; r < repeticiones; ++r) {
                             auto t0 = steady_clock::now();
-                            SparseMatrix* res = A->multiply(B);
+                            SparseMatrix* res = (r % 2 == 0) ? A->multiply(B) : B->multiply(A);
                             auto t1 = steady_clock::now();
                             delete res;
                             long long ps = duration_cast<std::chrono::duration<long long, std::pico>>(t1 - t0).count();
@@ -443,7 +443,6 @@ int App::main() {
                             totalNsAccum += ns;
                             totalMsAccum += ms;
                         }
-                        delete B;
                         
                         // Promedios como double
                         double avgNs = (repeticiones > 0) ? (static_cast<double>(totalNsAccum) / repeticiones) : 0.0;

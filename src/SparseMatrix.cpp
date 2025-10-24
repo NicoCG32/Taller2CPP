@@ -36,13 +36,13 @@ void SparseMatrix::add(int value, int xPos, int yPos) {
 
     // Verificación: valor cero no es válido (no tiene sentido almacenar ceros)
     if (value == 0) {
-    cout << "No se pueden agregar valores cero.\n";
+    // cout << "No se pueden agregar valores cero.\n";
         return;
     }
 
     // Verificación: posiciones negativas no son válidas
     if (xPos < 0 || yPos < 0) {
-    cout << "Posiciones inválidas: (" << xPos << "," << yPos << ")\n";
+    // cout << "Posiciones inválidas: (" << xPos << "," << yPos << ")\n";
         return;
     }
 
@@ -106,7 +106,7 @@ void SparseMatrix::add(int value, int xPos, int yPos) {
     }
     
     if (tempY->getX() == xPos || tempX->getY() == yPos) {
-        cout << "Ya hay un valor en la posicion: (" << xPos << "," << yPos << ")" << endl;
+        // cout << "Ya hay un valor en la posicion: (" << xPos << "," << yPos << ")" << endl;
         return;
     }
 
@@ -157,11 +157,13 @@ void SparseMatrix::add(int value, int xPos, int yPos) {
         tempY->setLeft(newNode);
         newNode->setRight(tempY);
     }
+
+    // cout << "add completado" << endl;
 }
 
 int SparseMatrix::get(int xPos, int yPos) {
     if (xPos < 0 || yPos < 0) {
-        cout << "Posicion invalida: (" << xPos << "," << yPos << ")\n";
+        // cout << "Posicion invalida: (" << xPos << "," << yPos << ")\n";
         return 0;
     }
 
@@ -175,7 +177,7 @@ int SparseMatrix::get(int xPos, int yPos) {
     }
 
     if (cursor == start) {
-        cout << "No hay valor en la posicion: (" << xPos << "," << yPos << ")\n";
+        // cout << "No hay valor en la posicion: (" << xPos << "," << yPos << ")\n";
         return 0;
     }
     
@@ -189,10 +191,11 @@ int SparseMatrix::get(int xPos, int yPos) {
     }
     
     if (cursor == limite) {
-        cout << "No hay valor en la posicion: (" << xPos << "," << yPos << ")" << endl;
+        // cout << "No hay valor en la posicion: (" << xPos << "," << yPos << ")" << endl;
         return 0;
     }
 
+    // cout << "get completado" << endl;
     return cursor->getValue();
 }
 
@@ -332,8 +335,8 @@ SparseMatrix* SparseMatrix::multiply(SparseMatrix* second) {
 
     // Expansión de dimensiones si es necesario
     if (columnas != filas) {
-        cout << "Ajustando dimensiones para multiplicacion: " 
-             << (columnas + 1) << " columnas x " << (filas + 1) << " filas" << endl;
+        // cout << "Ajustando dimensiones para multiplicacion: " 
+        //      << (columnas + 1) << " columnas x " << (filas + 1) << " filas" << endl;
         
         // Expandir columnas de la primera matriz
         Node* nuevoCentinela;
@@ -420,13 +423,65 @@ SparseMatrix* SparseMatrix::multiply(SparseMatrix* second) {
         // Avanza de fila (aprovechando el enlace circular)
         cursorFirst = cursorFirst->getDown();
     }
-
+    // cout << "Multiplicacion completada." << endl;
     return result;
 }
 
-/*
+// Métodos auxiliares SÓLO para el ESTUDIO de SparseMatrix
+
+int SparseMatrix::getValueSilent(int xPos, int yPos) {
+    if (xPos < 0 || yPos < 0) {
+        return 0;
+    }
+
+    Node* cursor = start;
+    cursor = cursor->getDown();
+    while (cursor != start) {
+        if (cursor->getY() == yPos) {
+            break;
+        }
+        cursor = cursor->getDown();
+    }
+
+    if (cursor == start) {
+        return 0;
+    }
+    
+    Node* limite = cursor;
+    cursor = cursor->getRight();
+    while (cursor != limite) {
+        if (cursor->getX() == xPos) {
+            break;
+        }
+        cursor = cursor->getRight();
+    }
+    
+    if (cursor == limite) {
+        return 0;
+    }
+
+    return cursor->getValue();
+}
+
+int SparseMatrix::countNonZero() {
+    int count = 0;
+    // Recorrer filas usando centinelas
+    Node* fila = start->getDown();
+    while (fila != start) {
+        Node* limite = fila;
+        Node* cursor = fila->getRight();
+        while (cursor != limite) {
+            // Cada nodo en la fila representa un valor no-cero
+            count++;
+            cursor = cursor->getRight();
+        }
+        fila = fila->getDown();
+    }
+    return count;
+}
+
 void SparseMatrix::printMatrix() {
-    // Obtener dimensiones
+    // Obtener dSsimensiones
     Node* cursorX = start->getLeft();
     Node* cursorY = start->getUp();
 
@@ -441,10 +496,12 @@ void SparseMatrix::printMatrix() {
     for (int y = 0; y <= maxY; y++) {
         cout << "[";
         for (int x = 0; x <= maxX; x++) {
-            int val = this->get(x, y);
-            cout << val << " ";
+            int val = this->getValueSilent(x, y);
+            cout << val;
+            if (x < maxX) cout << " ";
         }
-        cout << "]" << endl;
+        cout << "]";
+        if (y < maxY) cout << endl;
     }
     cout << "]" << endl;
 }
@@ -473,4 +530,13 @@ void SparseMatrix::compact() {
         centinelaBorde = temp;
     }
 }
-*/
+
+int SparseMatrix::getHeight() {
+    Node* cursorY = start->getUp();
+    return cursorY->getY();
+}
+
+int SparseMatrix::getWidth() {
+    Node* cursorX = start->getLeft();
+    return cursorX->getX();
+}

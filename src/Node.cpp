@@ -40,16 +40,8 @@ Node* Node::getUp(){
     return up;
 }
 
-void Node::setValue(int value){
-    this->value = value;
-}
-
-void Node::setX(int x){
-    this->x = x;
-}
-
-void Node::setY(int y){
-    this->y = y;
+void Node::setValue(int val){
+    this->value = val;
 }
 
 void Node::setRight(Node* right){

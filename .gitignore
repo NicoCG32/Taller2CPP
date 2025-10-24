@@ -11,3 +11,9 @@
 *.lib
 *.pdb
 
+# Documentación generada por Doxygen
+docs/html/
+docs/latex/
+
+# Archivos de compilación
+build/

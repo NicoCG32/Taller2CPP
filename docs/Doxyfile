@@ -1,0 +1,34 @@
+# Identidad del proyecto
+PROJECT_NAME           = "SparseMatrix"
+PROJECT_BRIEF          = "Estructura de datos, nodos ortogonales dispersos en C++"
+PROJECT_NUMBER         = "v100.0"
+
+# Entrada/salida
+OUTPUT_DIRECTORY       = .
+INPUT                  = ../include ../src
+RECURSIVE              = YES
+FILE_PATTERNS          = *.h *.hpp *.cpp
+
+# Estilo y alcance de extracción
+EXTRACT_ALL            = YES           
+EXTRACT_PRIVATE        = YES
+EXTRACT_STATIC         = YES
+EXTRACT_LOCAL_CLASSES  = YES
+
+# Mensajes
+WARN_IF_UNDOCUMENTED   = YES
+WARNINGS               = YES
+
+# HTML / LaTeX
+GENERATE_HTML          = YES
+HTML_OUTPUT            = html
+GENERATE_LATEX         = NO
+
+# Estilo de “Javadoc”
+JAVADOC_AUTOBRIEF      = YES
+
+# Diagramas (requiere Graphviz - desactivado si no está instalado)
+HAVE_DOT               = NO
+CALL_GRAPH             = NO
+CALLER_GRAPH           = NO
+DOT_IMAGE_FORMAT       = svg

@@ -2,6 +2,7 @@
 #include <iostream>
 #include <chrono>
 #include <iomanip>
+#include <fstream>
 using namespace std;
 using namespace std::chrono;
 
@@ -16,6 +17,34 @@ using namespace std::chrono;
 App::App() {
     principal = nullptr;
     second = nullptr;
+}
+
+// Helper: agrega el resultado del análisis en nanosegundos a resultados.txt
+static void appendResultadoNs(double nsValue) {
+    std::ofstream out("resultados.txt", std::ios::app);
+    if (!out.is_open()) {
+        // Intentar crear el archivo si no existe
+        std::ofstream create("resultados.txt", std::ios::out);
+        create.close();
+        // Reintentar abrir en modo append
+        out.open("resultados.txt", std::ios::app);
+    }
+    if (out.is_open()) {
+        out << std::setprecision(12) << nsValue << '\n';
+    }
+}
+
+// Helper: append a blank line to resultados.txt (to separate sessions/menus)
+static void appendResultadoNewline() {
+    std::ofstream out("resultados.txt", std::ios::app);
+    if (!out.is_open()) {
+        std::ofstream create("resultados.txt", std::ios::out);
+        create.close();
+        out.open("resultados.txt", std::ios::app);
+    }
+    if (out.is_open()) {
+        out << '\n';
+    }
 }
 
 // Destructor
@@ -174,6 +203,8 @@ int App::main() {
                     }
 
                 } while (opcionManual != 0);
+                // Al volver al menu principal, separar resultados con una linea en blanco
+                appendResultadoNewline();
                 limpiarPantalla();
                 mostrarEstadoMatrices();
                 break;
@@ -254,11 +285,41 @@ int App::main() {
                         cin.ignore();
                         cin.get();
                     } else if (opcionPrueba == 2) {
-                        // Probar add: matriz vacia + coordenadas fijas en cada iteracion
-                        cout << "\n¿Cuantas inserciones por repeticion (m)? ";
-                        int m;
-                        cin >> m;
-                        if (m <= 0) { cout << "m debe ser > 0" << endl; continue; }
+                        // Probar add: usa una matriz ya generada como referencia
+                        cout << "\nSeleccione matriz de referencia para probar add:" << endl;
+                        cout << "1) Matriz Principal" << endl;
+                        cout << "2) Matriz Second" << endl;
+                        cout << "Opcion: ";
+                        int selRef;
+                        cin >> selRef;
+                        SparseMatrix* refMatriz = (selRef == 2 ? second : principal);
+                        if (!refMatriz) { 
+                            cout << "Matriz no disponible. Genera una matriz primero (opcion 1)." << endl; 
+                            continue; 
+                        }
+                        
+                        // Usar el tamaño de la matriz de referencia
+                        int m = refMatriz->countNonZero();
+                        if (m <= 0) { 
+                            cout << "La matriz de referencia esta vacia. Genera una matriz primero." << endl; 
+                            continue; 
+                        }
+                        
+                        cout << "\nUsando tamaño de matriz: " << m << " elementos" << endl;
+                        
+                        // Ajustar espacio de coordenadas basado en m para evitar colisiones
+                        int W, H;
+                        if (m <= 100) {
+                            W = H = 100;  // 10,000 posibles (suficiente para ≤100 elementos)
+                        } else if (m <= 500) {
+                            W = H = 300;  // 90,000 posibles (suficiente para ≤500 elementos)
+                        } else if (m <= 1000) {
+                            W = H = 500;  // 250,000 posibles (suficiente para ≤1000 elementos)
+                        } else {
+                            W = H = 1000; // 1,000,000 posibles (suficiente para ≤5000 elementos)
+                        }
+                        
+                        cout << "\nGenerando " << m << " coordenadas unicas en espacio " << W << "x" << H << "..." << endl;
                         
                         // Generar m coordenadas unicas fijas (fuera del cronometro)
                         vector<int> xs; xs.reserve(m);
@@ -269,7 +330,6 @@ int App::main() {
                             return (static_cast<long long>(static_cast<unsigned int>(y)) << 32) |
                                    static_cast<unsigned int>(x);
                         };
-                        int W = 100; int H = 100; // espacio de coordenadas
                         while (static_cast<int>(xs.size()) < m) {
                             int x = rand() % W;
                             int y = rand() % H;
@@ -303,10 +363,13 @@ int App::main() {
                         while (totalMsAccum < 10 && blocks < maxBlocks) {
                             SparseMatrix* temp = new SparseMatrix();
                             auto t0 = steady_clock::now();
+                            // m debe ser lo más alto posible
                             for (int i = 0; i < m; ++i) {
                                 temp->add(vs[i], xs[i], ys[i]);
                             }
                             auto t1 = steady_clock::now();
+                            
+                            // así no se consume tiempo en limpieza
                             delete temp;
                             long long ps = duration_cast<std::chrono::duration<long long, std::pico>>(t1 - t0).count();
                             long long ns = duration_cast<nanoseconds>(t1 - t0).count();
@@ -323,13 +386,18 @@ int App::main() {
                         double avgMs = avgNs / 1e6;
                         double avgPs = (totalCalls > 0) ? (static_cast<double>(totalPsAccum) / totalCalls) : 0.0;
                         cout << "\n========== RESULTADOS ADD ==========" << endl;
-                        cout << "Iteraciones: " << totalCalls << endl;
-                        cout << "Tiempo total: " << totalMsAccum << " ms" << endl;
+                        cout << "Tamaño de matriz probado: " << m << " elementos" << endl;
+                        cout << "Bloques ejecutados: " << blocks << endl;
+                        cout << "Iteraciones totales: " << totalCalls << endl;
+                        cout << "Tiempo total acumulado: " << totalMsAccum << " ms" << endl;
                         cout << fixed << setprecision(6);
-                        cout << "Promedio: " << avgMs << " ms" << endl;
-                        cout << "Promedio: " << avgNs << " ns" << endl;
-                        cout << "Promedio: " << avgPs << " ps" << endl;
+                        cout << "\nPROMEDIO POR OPERACION ADD:" << endl;
+                        cout << "  " << avgMs << " ms" << endl;
+                        cout << "  " << avgNs << " ns" << endl;
+                        cout << "  " << avgPs << " ps" << endl;
                         cout << "====================================" << endl;
+                        // Guardar resultado en ns en resultados.txt
+                        appendResultadoNs(avgNs);
                         cout << "\nPresione Enter para continuar...";
                         cin.ignore();
                         cin.get();
@@ -399,6 +467,8 @@ int App::main() {
                         cout << "Promedio: " << avgNs << " ns" << endl;
                         cout << "Promedio: " << avgPs << " ps" << endl;
                         cout << "====================================" << endl;
+                        // Guardar resultado en ns en resultados.txt
+                        appendResultadoNs(avgNs);
                         cout << "\nPresione Enter para continuar...";
                         cin.ignore();
                         cin.get();
@@ -457,6 +527,12 @@ int App::main() {
                         cout << "Promedio: " << avgNs << " ns" << endl;
                         cout << "Promedio: " << avgPs << " ps" << endl;
                         cout << "====================================" << endl;
+                        // Guardar resultado en ns en resultados.txt
+                        appendResultadoNs(avgNs);
+                        
+                        principal->compact();
+                        second->compact();
+
                         cout << "\nPresione Enter para continuar...";
                         cin.ignore();
                         cin.get();
@@ -464,6 +540,8 @@ int App::main() {
                         cout << "Opcion invalida." << endl;
                     }
                 }
+                // Al volver al menu principal, separar resultados con una linea en blanco
+                appendResultadoNewline();
                 limpiarPantalla();
                 mostrarEstadoMatrices();
                 break;

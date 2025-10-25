@@ -492,6 +492,8 @@ void SparseMatrix::printMatrix() {
         cout << "La matriz esta vacia." << endl;
         return;
     }
+
+    /* Por ahora para no demorar la tabulación de datos en matrices grandes
     cout << "[";
     for (int y = 0; y <= maxY; y++) {
         cout << "[";
@@ -504,6 +506,8 @@ void SparseMatrix::printMatrix() {
         if (y < maxY) cout << endl;
     }
     cout << "]" << endl;
+    */
+   cout << "Matriz existente" << endl;
 }
 
 void SparseMatrix::compact() {
